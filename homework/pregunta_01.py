@@ -4,10 +4,65 @@
 """
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
+import os
+import pandas as pd
+import zipfile 
 
 
 def pregunta_01():
-    """
+    zip_file_name = './files/input.zip'
+    extracted_folder_name = './files' 
+# 1. Unzip the file
+    with zipfile.ZipFile(zip_file_name, 'r') as zip_ref:
+        zip_ref.extractall(extracted_folder_name)
+        print(f"'{zip_file_name}' unzipped to '{extracted_folder_name}/'")
+    def extract_data_from_folder(folder_path):
+        data = []
+        for sentiment in ['negative', 'positive', 'neutral']:
+            sentiment_path = os.path.join(folder_path, sentiment)
+            for file_name in os.listdir(sentiment_path):
+                file_path = os.path.join(sentiment_path, file_name)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    phrase = file.read().strip()
+                    data.append({'phrase': phrase, 'target': sentiment})
+        return data
+
+    # Extraer datos de las carpetas de entrenamiento y prueba
+    train_data = extract_data_from_folder('files/input/train')
+    test_data = extract_data_from_folder('files/input/test')
+
+    # Convertir los datos en DataFrames de pandas
+    train_df = pd.DataFrame(train_data)
+    test_df = pd.DataFrame(test_data)
+
+    # Crear la carpeta de salida si no existe
+    output_path = './files/output'
+    os.makedirs(output_path, exist_ok=True)
+
+    # Guardar los DataFrames en archivos CSV
+    train_csv_path = os.path.join(output_path, 'train_dataset.csv')
+    test_csv_path = os.path.join(output_path, 'test_dataset.csv')
+
+    train_df.to_csv(train_csv_path, index=False)
+    test_df.to_csv(test_csv_path, index=False)
+
+    print(f'Archivos CSV generados en la carpeta {output_path}')
+    
+
+def extract_data_from_folder(folder_path):
+    data = []
+    for sentiment in ['negative', 'positive', 'neutral']:
+        sentiment_path = os.path.join(folder_path, sentiment)
+        for file_name in os.listdir(sentiment_path):
+            file_path = os.path.join(sentiment_path, file_name)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                phrase = file.read().strip()
+                data.append({'phrase': phrase, 'sentiment': sentiment})
+    return data
+
+print(pregunta_01()) 
+
+"""
     La información requerida para este laboratio esta almacenada en el
     archivo "files/input.zip" ubicado en la carpeta raíz.
     Descomprima este archivo.
